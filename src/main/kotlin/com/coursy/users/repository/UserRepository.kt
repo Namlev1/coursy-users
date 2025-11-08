@@ -9,4 +9,5 @@ import java.util.*
 @Repository
 interface UserRepository : JpaRepository<User, UUID>, JpaSpecificationExecutor<User> {
     fun removeUserById(id: UUID)
+    fun findByEmail(email: String): User?
 }

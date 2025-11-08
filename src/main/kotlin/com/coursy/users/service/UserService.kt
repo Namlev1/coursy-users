@@ -12,6 +12,7 @@ import com.coursy.users.failure.AuthorizationFailure
 import com.coursy.users.failure.Failure
 import com.coursy.users.failure.UserFailure
 import com.coursy.users.internal.auth.AuthServiceClient
+import com.coursy.users.internal.auth.PlatformRegistrationRequest
 import com.coursy.users.model.Role
 import com.coursy.users.model.User
 import com.coursy.users.repository.UserRepository
@@ -71,7 +72,7 @@ class UserService(
 
         // TODO: if error, rollback user creation
         authServiceClient
-            .createUser(request.email, request.password, user.id)
+            .createUser(request.email, request.password, user.id, platformId)
         
         return Unit.right()
     }
@@ -154,6 +155,27 @@ class UserService(
             .getOrElse { return UserFailure.IdNotExists.left() }
         return user.role.right()
 
+    }
+
+    fun createOwner(
+        request: PlatformRegistrationRequest
+    ): Either<Failure, Unit> {
+        val user = userRepository.findById(request.userId)
+            .orElseThrow()
+        val owner = User(
+            email = user.email,
+            role = Role.ROLE_PLATFORM_OWNER,
+            firstName = user.firstName,
+            lastName = user.lastName,
+            platformId = request.platformId
+        )
+        userRepository.save(owner)
+
+        // TODO: if error, rollback user creation
+        authServiceClient
+            .createOwner(user.id, owner.id, request.platformId)
+
+        return Unit.right()
     }
 
     private fun createUserEntity(request: RegistrationRequest.Validated, platformId: UUID?): User {

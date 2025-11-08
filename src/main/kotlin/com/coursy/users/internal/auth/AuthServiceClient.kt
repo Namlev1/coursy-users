@@ -19,7 +19,7 @@ class AuthServiceClient(
     @Value("\${services.auth.url}")
     private val authServiceUrl: String
 ) {
-    fun createUser(email: Email, password: Password, id: UUID): Either<Failure, Unit> {
+    fun createUser(email: Email, password: Password, id: UUID, platformId: UUID?): Either<Failure, Unit> {
         return try {
             webClient
                 .post()
@@ -29,7 +29,34 @@ class AuthServiceClient(
                     AuthRegistrationRequest(
                         email,
                         password,
-                        id
+                        id,
+                        platformId
+                    )
+                )
+                .retrieve()
+                .onStatus(HttpStatusCode::isError) { response ->
+                    Mono.error(RuntimeException("Auth service error: ${response.statusCode()}"))
+                }
+                .bodyToMono<Unit>()
+                .block()
+
+            Either.Right(Unit)
+        } catch (ex: Exception) {
+            Either.Left(NetworkFailure(ex.message ?: "Unknown error"))
+        }
+    }
+
+    fun createOwner(currentUserId: UUID, ownerId: UUID, platformId: UUID): Either<Failure, Unit> {
+        return try {
+            webClient
+                .post()
+                .uri("$authServiceUrl/api/auth/owner")
+                .header("Content-Type", "application/json")
+                .bodyValue(
+                    OwnerRegistrationRequest(
+                        currentUserId,
+                        ownerId,
+                        platformId,
                     )
                 )
                 .retrieve()

@@ -2,7 +2,10 @@ package com.coursy.users.model
 
 import com.coursy.users.types.Email
 import com.coursy.users.types.Name
-import jakarta.persistence.*
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Id
 import org.hibernate.Hibernate
 import java.util.*
 
@@ -11,7 +14,6 @@ class User(
     @Id
     var id: UUID = UUID.randomUUID(),
     var platformId: UUID?,
-    @Column(unique = true)
     var email: Email,
     var firstName: Name,
     var lastName: Name,
