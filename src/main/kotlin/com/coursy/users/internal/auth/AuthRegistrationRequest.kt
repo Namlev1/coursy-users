@@ -8,5 +8,5 @@ data class AuthRegistrationRequest(
     val email: Email,
     val password: Password,
     val id: UUID,
-    val platformID: UUID?
+    val platformId: UUID?
 )
