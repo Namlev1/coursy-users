@@ -12,4 +12,4 @@ server:
   port: 8081
 services:
   auth:
-    url: ${AUTH_SERVICE_URL:http://localhost:8085}
+    url: ${AUTH_SERVICE_URL:http://localhost:8084}

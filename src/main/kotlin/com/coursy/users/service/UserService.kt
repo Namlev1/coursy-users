@@ -70,7 +70,7 @@ class UserService(
         val user = createUserEntity(request, platformId)
         userRepository.save(user)
 
-        // TODO: if error, rollback user creation
+
         authServiceClient
             .createUser(request.email, request.password, user.id, platformId)
         
@@ -171,7 +171,7 @@ class UserService(
         )
         userRepository.save(owner)
 
-        // TODO: if error, rollback user creation
+
         authServiceClient
             .createOwner(user.id, owner.id, request.platformId)
 

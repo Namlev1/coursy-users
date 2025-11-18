@@ -20,12 +20,10 @@ class AuthorizationService {
         targetTenantId: UUID?,
         targetRole: Role
     ): Boolean {
-        // No authentication required for basic account creation
         if (targetRole in listOf(Role.ROLE_TENANT, Role.ROLE_PLATFORM_USER)) {
             return true
         }
 
-        // Administrative roles require authentication
         if (jwt == null) {
             return false
         }
@@ -35,12 +33,12 @@ class AuthorizationService {
 
 
         return when (principalRole) {
-            Role.ROLE_HOST_OWNER, Role.ROLE_HOST_ADMIN -> true // Can create any admin role
+            Role.ROLE_HOST_OWNER, Role.ROLE_HOST_ADMIN -> true
             Role.ROLE_PLATFORM_OWNER, Role.ROLE_PLATFORM_ADMIN -> {
-                // Can only create platform admins within their tenant
+
                 when (targetRole) {
                     Role.ROLE_PLATFORM_ADMIN -> targetTenantId == principalPlatformId
-                    Role.ROLE_PLATFORM_OWNER -> false // Cannot create other platform owners
+                    Role.ROLE_PLATFORM_OWNER -> false
                     else -> false
                 }
             }
@@ -56,10 +54,10 @@ class AuthorizationService {
         val targetUserPlatformId = user.platformId
 
         return when (principalRole) {
-            Role.ROLE_HOST_OWNER -> true // Can do anything
+            Role.ROLE_HOST_OWNER -> true
 
             Role.ROLE_HOST_ADMIN -> {
-                // Can remove TENANT and everything related with PLATFORM and STUDENT
+
                 user.role in listOf(
                     Role.ROLE_TENANT,
                     Role.ROLE_PLATFORM_OWNER,
@@ -69,17 +67,17 @@ class AuthorizationService {
             }
 
             Role.ROLE_PLATFORM_OWNER -> {
-                // Can do anything within their platform (same tenant)
+
                 targetUserPlatformId == principalPlatformId
             }
 
             Role.ROLE_PLATFORM_ADMIN -> {
-                // Can remove only students within their platform
+
                 targetUserPlatformId == principalPlatformId &&
                         user.role == Role.ROLE_PLATFORM_USER
             }
 
-            Role.ROLE_TENANT, Role.ROLE_PLATFORM_USER -> false // Can't remove anyone
+            Role.ROLE_TENANT, Role.ROLE_PLATFORM_USER -> false
         }
     }
 
@@ -93,7 +91,7 @@ class AuthorizationService {
             Role.ROLE_HOST_OWNER -> true
 
             Role.ROLE_HOST_ADMIN -> {
-                // Can assign admin roles (any admin role)
+
                 newRole in listOf(
                     Role.ROLE_HOST_ADMIN,
                     Role.ROLE_PLATFORM_OWNER,
@@ -102,12 +100,12 @@ class AuthorizationService {
             }
 
             Role.ROLE_PLATFORM_OWNER -> {
-                // Can do anything within their platform
+
                 targetUserPlatformId == principalPlatformId
             }
 
             Role.ROLE_PLATFORM_ADMIN -> {
-                // Can assign admin roles within their platform
+
                 targetUserPlatformId == principalPlatformId &&
                         newRole in listOf(
                     Role.ROLE_PLATFORM_ADMIN,
@@ -115,7 +113,7 @@ class AuthorizationService {
                 )
             }
 
-            Role.ROLE_TENANT, Role.ROLE_PLATFORM_USER -> false // Can't update anything
+            Role.ROLE_TENANT, Role.ROLE_PLATFORM_USER -> false
         }
     }
 

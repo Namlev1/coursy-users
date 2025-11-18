@@ -44,7 +44,7 @@ class UserSpecification {
         fun email(email: Email?) = apply {
             email?.let {
                 predicates.add { root, _, cb ->
-                    cb.equal(root.get<String>("email"), it.value) // Use .value here
+                    cb.equal(root.get<String>("email"), it.value)
                 }
             }
         }
